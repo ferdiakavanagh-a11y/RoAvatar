@@ -2408,3 +2408,7 @@ textarea {
     width: 130px;
 }
 
+.left-positioned-select {
+    position: absolute;
+    left: 0;
+}

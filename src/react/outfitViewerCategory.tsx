@@ -124,8 +124,13 @@ export default function OutfitViewerCategory(): React.JSX.Element {
     }
 
     return <div className="container">
-        <div>
-            <SelectInput value={selectedType} alternatives={["Outfits", "Avatar History"]} setValue={(newValue: string) => {
+        <div style={{
+                display: "flex",
+                width: "90%",
+                justifyContent: "center",
+                position: "relative",
+            }}>
+            <SelectInput className="left-positioned-select" value={selectedType} alternatives={["Outfits", "Avatar History"]} setValue={(newValue: string) => {
                 if (userId) {
                     if (newValue === "Outfits") loadOutfits(userId)
                     if (newValue === "Avatar History") loadAvatarHistory(userId)
