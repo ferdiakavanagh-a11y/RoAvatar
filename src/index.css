@@ -698,7 +698,7 @@ body {
 
 .worn-item-vertical-line {
     width: 1px;
-    height: 60px;
+    height: 58px;
     background-color: var(--item-background);
     display: block;
     flex-shrink: 0;
