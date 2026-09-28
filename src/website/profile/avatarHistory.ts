@@ -30,10 +30,10 @@ function createOutfitList(profileTabContent: Element, avatarList: AvatarListV1, 
     const outfitListContainer = createElementFromHTML(`
         <div class="profile-carousel" id="roavatar-avatar-history">
             <div class="css-17g81zd-collectionCarouselContainer">
-                <div><!--<a href="" class="items-center inline-flex">-->
-                        <h2 class="content-emphasis text-heading-small padding-none inline-block">Recent avatars</h2><!--<span
+                <div><a href="" class="items-center inline-flex">
+                        <h2 class="content-emphasis text-heading-small padding-none inline-block">Recent avatars</h2><span
                             class="icon-chevron-heavy-right"></span>
-                    </a>--></div>
+                    </a></div>
                 <div class="css-1jynqc0-carouselContainer">
                     <div class="css-1i465w8-carousel" style="display: flex; flex-direction: row;">
                         

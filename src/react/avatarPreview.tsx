@@ -450,7 +450,7 @@ export default function AvatarPreview({ children, setSaveAlwaysOn, setOutfit, an
                 if (apiId && !buffer) {
                     ROAVATAR_API.avatars.getAvatar(apiId).then((outfit) => {
                         if (outfit instanceof Outfit) {
-                            outfit.creatorId = Number(userId)
+                            outfit.creatorId = outfit.creatorId || Number(userId)
                             setOutfit(outfit)
                             hasLoadedAvatar = true
                         }

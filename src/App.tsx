@@ -271,6 +271,13 @@ function App() {
       window.createLook = () => {
         return API.Looks.CreateLook(newAuth, window.outfit, "Test", "Test")
       }
+
+      const urlParams = new URLSearchParams(window.location.search)
+      const avatarHistoryId = urlParams.get("avatarHistory")
+      if (avatarHistoryId) {
+        setCategoryType("Avatars")
+        setSubCategoryType("View Others")
+      }
     }
 
     API.Users.GetUserInfo().then((userInfo) => {

@@ -1,4 +1,4 @@
-import { useContext, useRef, useState } from "react";
+import { useCallback, useContext, useEffect, useRef, useState } from "react";
 import UserSearch from "./generic/userSearch";
 import { API, generateOutfitThumbnail, ItemInfo, Outfit } from "roavatar-renderer";
 import ItemCard from "./itemCard";
@@ -11,6 +11,7 @@ import SelectInput from "./generic/selectInput";
 import 'javascript-time-ago/locale/en';
 import TimeAgo from "javascript-time-ago";
 
+let hasLoadedFromURL = false
 let lastLoadId = 0
 
 interface OutfitInfo {
@@ -70,7 +71,7 @@ export default function OutfitViewerCategory(): React.JSX.Element {
         })
     }
 
-    function loadAvatarHistory(userId: number) {
+    const loadAvatarHistory = useCallback((userId: number) => {
         if (!auth) return
 
         lastLoadId += 1
@@ -115,13 +116,28 @@ export default function OutfitViewerCategory(): React.JSX.Element {
             }
             setIsLoading(false)
         })
-    }
+    }, [auth])
 
     function setUserId(userId: number) {
         _setUserId(userId)
         if (selectedType === "Outfits") loadOutfits(userId)
         if (selectedType === "Avatar History") loadAvatarHistory(userId)
     }
+
+    useEffect(() => {
+        if (!hasLoadedFromURL) {
+            hasLoadedFromURL = true
+            const urlParams = new URLSearchParams(window.location.search)
+            const avatarHistoryId = urlParams.get("avatarHistory")
+            if (avatarHistoryId) {
+                const userId = Number(avatarHistoryId)
+                if (!isNaN(userId) && userId > 0) {
+                    loadAvatarHistory(userId)
+                    setSelectedType("Avatar History")
+                }
+            }
+        }
+    }, [loadAvatarHistory])
 
     return <div className="container">
         <div style={{
