@@ -163,7 +163,7 @@ function App() {
     setOutfitModel(newOutfitModel)
   }, [outfitModel, setOutfitModel])
 
-  function setCurrentAnimName(name: string, force?: boolean) {
+  const setCurrentAnimName = useCallback((name: string, force?: boolean) => {
     if (!canSetAnimName && !force) return
 
     //switch to compatible animation if avatar is r6
@@ -176,9 +176,9 @@ function App() {
     }
 
     _setCurrentAnimName(name)
-  }
+  }, [canSetAnimName, outfit.playerAvatarType])
 
-  (window as any).setCurrentAnimName = setCurrentAnimName
+  //(window as any).setCurrentAnimName = setCurrentAnimName
 
   function setCategorySource(newCategorySource: string) {
     _setCategorySource(newCategorySource)
@@ -202,20 +202,7 @@ function App() {
     }
   }
 
-  function setCategoryType(categoryType: string, newCategorySource?: string) {
-    const realCategorySource = newCategorySource || categorySource
-
-    _setCategoryType(categoryType)
-    if (realCategorySource === "Inventory") {
-      const firstSubCategory = Object.keys(CategoryDictionary[realCategorySource][categoryType])[0]
-      setSubCategoryType(firstSubCategory)
-    } else {
-      setSubCategoryType(undefined)
-    }
-    
-  }
-
-  function setSubCategoryType(newSubCategoryType: string | undefined) {
+  const setSubCategoryType = useCallback((newSubCategoryType: string | undefined) => {
     if (newSubCategoryType === subCategoryType) {
       return
     }
@@ -248,7 +235,20 @@ function App() {
         setCurrentAnimName("idle")
         break
     }
-  }
+  }, [setCurrentAnimName, subCategoryType])
+
+  const setCategoryType = useCallback((categoryType: string, newCategorySource?: string) => {
+    const realCategorySource = newCategorySource || categorySource
+
+    _setCategoryType(categoryType)
+    if (realCategorySource === "Inventory") {
+      const firstSubCategory = Object.keys(CategoryDictionary[realCategorySource][categoryType])[0]
+      setSubCategoryType(firstSubCategory)
+    } else {
+      setSubCategoryType(undefined)
+    }
+    
+  }, [categorySource, setSubCategoryType])
 
   useEffect(() => {
     //create auth
@@ -386,7 +386,7 @@ function App() {
         }
       })
     }
-  }, [auth, outfit, setOutfit, navigationMenuItems])
+  }, [auth, outfit, setOutfit, navigationMenuItems, setCategoryType, setSubCategoryType])
 
   //update searchData to match selected filters
   useEffect(() => {
