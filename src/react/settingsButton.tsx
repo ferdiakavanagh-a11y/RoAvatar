@@ -123,7 +123,7 @@ export default function SettingsButton(): React.JSX.Element {
             <SettingsToggle text={"Show avatars made with item in marketplace (API)"} storage="s-avatars-made-with" defaultValue={true}/>
             <div className="dialog-line"></div>
             <div className="setting-row">
-                <span className="setting-name roboto-400">Saved characters (local)</span>
+                <span className="setting-name roboto-400">Saved avatars (local)</span>
                 <div className="dialog-actions">
                     <RadialButton className="dialog-confirm roboto-600" onClick={() => {exportLocalOutfits()}}>Export</RadialButton>
                     <RadialButton className="dialog-confirm roboto-600" onClick={() => {importInputRef.current?.click()}}>Import</RadialButton>
