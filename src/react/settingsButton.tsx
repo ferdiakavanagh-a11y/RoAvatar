@@ -42,7 +42,7 @@ export default function SettingsButton(): React.JSX.Element {
     const settingsDialogRef = useRef<HTMLDialogElement>(null)
     const importInputRef = useRef<HTMLInputElement>(null)
 
-    //export local outfits to a json file (same format as window.downloadLocalOutfits)
+    //export local outfits to a json file 
     async function exportLocalOutfits() {
         try {
             const localOutfits = await API.LocalOutfit.GetLocalOutfits()
