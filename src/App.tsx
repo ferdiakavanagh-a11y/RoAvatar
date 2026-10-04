@@ -567,7 +567,7 @@ function App() {
                 {/*worn items list*/}
                 <div className='worn-items dark-scrollbar'>
                   {outfitModel.background ? 
-                    <ItemCard key={outfitModel.background._uuid} auth={auth} className='worn-list-item' isWorn={false} showIfUnowned={true} forceIsWorn={true} showViewButton={true} includeName={false} itemInfo={new ItemInfo("Asset", "AvatarBackground", outfitModel.background.id, outfitModel.background.name)} onClick={() => {
+                    <ItemCard key={outfitModel.background._uuid} auth={auth} className='worn-list-item' isWorn={false} forceIsWorn={true} showViewButton={true} includeName={false} itemInfo={new ItemInfo("Asset", "AvatarBackground", outfitModel.background.id, outfitModel.background.name)} onClick={() => {
                       const newOutfitModel = outfitModel.clone()
                       newOutfitModel.background = undefined
                       setOutfitModel(newOutfitModel)
