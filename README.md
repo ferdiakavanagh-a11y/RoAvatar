@@ -39,8 +39,11 @@ Discord: https://discord.gg/PHa5Vgtbva
 
 Website: https://roavatar.net
 
+## License
+The project is licensed under GPL-3. The RoAvatar branding and related assets are exempt from the license and not available for use.
+
 ## Renderer
-The renderer that this extension uses now has a standalone github repository and npm package:
+The renderer that this extension uses has a standalone github repository and npm package:
 [npm](https://www.npmjs.com/package/roavatar-renderer) | [GitHub](https://github.com/steinann/RoAvatar-Renderer)
 
 Copyright (C) 2026 RoAvatar authors & @steinann on GitHub
