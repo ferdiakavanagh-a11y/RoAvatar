@@ -134,7 +134,7 @@ export async function onURLChangeAvatarHistory() {
 
             setTimeout(() => {
                 if (getIdFromUrl(window.location.href) !== userId) return true
-                const profileTabContent = document.querySelector(".profile-tab-content")
+                const profileTabContent = document.querySelector(".profile-content")
                 if (profileTabContent) {
                     createOutfitList(profileTabContent, result, userId)
                 }
@@ -153,7 +153,7 @@ export async function onURLChangeAvatarHistory() {
 
                     if (!containsClass) return false
 
-                    const profileTabContent = document.querySelector(".profile-tab-content")
+                    const profileTabContent = document.querySelector(".profile-content")
 
                     if (containsClass && profileTabContent && potentialProfileElement.id !== "roavatar-avatar-history") {
                         createOutfitList(profileTabContent, result, userId)

@@ -2,15 +2,74 @@ import { StrictMode } from 'react'
 import { createRoot } from 'react-dom/client'
 import './index.css'
 import App from './App.tsx'
-import { API, Authentication, exposeAPI, exposeFLAGS, exposeManagedTextures, exposeMesh, exposeTests, exposeThumbnailGenerator, FLAGS, OutfitModel, OutfitRenderer, RBXRenderer } from 'roavatar-renderer'
+import { API, Authentication, exposeAPI, exposeFLAGS, exposeManagedTextures, exposeMesh, exposeTests, exposeThumbnailGenerator, FLAGS, OutfitModel, OutfitRenderer, RBXRenderer, Wait } from 'roavatar-renderer'
 import { CONFIG } from './react/generic/config.ts'
 import ReviewReminder from './react/reviewReminder.tsx'
 import { initWebsite } from './website/init.ts'
 import { getSetting } from './react/generic/settings.ts'
 
 //declare const browser: typeof chrome;
-if (window.location.protocol.includes("extension")) {
+if (window.location.protocol.includes("extension") || window.location.pathname.endsWith("roavatar-embed-beta")) {
   const initEditor = async () => {
+    if (window.location.pathname.endsWith("roavatar-embed-beta")) {
+      while (!document.getElementById("content")) {
+        await Wait(0.5)
+      }
+
+      console.log("content is here time to le init!")
+      const content = document.getElementById("content")
+      if (content) content.innerHTML = ""
+      if (content) content.style = "margin: 0; font-size: 12px; overflow: hidden;"
+      initWebsite(false)
+
+      const response = await fetch(chrome.runtime.getURL("/react/style.css"))
+      const body = await response.text()
+
+      const iconStuff = document.createElement("div")
+      iconStuff.innerHTML = `<!--Fonts-->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:ital,wght@0,100..900;1,100..900&family=Stack+Sans+Text:wght@200..700&display=swap" rel="stylesheet">
+    <!--Icons-->
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200&icon_names=account_circle,apparel,arrow_downward,arrow_upward,autorenew,backpack,block,cancel,center_focus_weak,check_box,clock_loader_10,clock_loader_20,clock_loader_40,clock_loader_60,clock_loader_80,clock_loader_90,close,delete,download,drag_pan,error,expand_content,eyeglasses_2,filter_list,info_i,keyboard_arrow_down,keyboard_arrow_up,menu,nest_clock_farsight_analog,photo_camera,redo,refresh,search,settings,share,shopping_basket,shopping_cart,stack,undo,warning" />`
+      document.body.appendChild(iconStuff)
+
+      const style = document.createElement("style")
+      style.innerText = `
+      :root {
+      --container: #191a1f;
+      --item-background: #2b2d33;
+      --body-background: #121215;
+      --button-background: #2a2a2d;
+      --button-hover: #252529;
+      --scrollbar-thumb: #0c0c0f;
+      --select-element-hover: #47474b;
+      --bar-divider: #404044;
+      --icon-button-hover: #ffffff36;
+
+      --font-color: #f5f5f5;
+
+      --emote-box-color: #3c3f48;
+      --loading-gradient-2: #626672;
+      --history-button-hover: #0d0d0f;
+      --history-button-active: #16161a;
+      --history-button-inactive: #f5f5f571;
+      --body-outline: #fff;
+
+      --thumb-dragging: #ffffff36;
+
+      --blue: #335fff;
+      --blue-dark: #1f3da7;
+      --blue-light: #466eff;
+
+      --robux-color: #bdbebe;
+
+      --icon-filter: invert(0);
+      --economy-svg: url(/public/assets/economy.svg);
+    }\n\n` + body
+      document.body.appendChild(style)
+    }
+
     const darkTheme = document.getElementById("style-dark-theme")
     const lightTheme = document.getElementById("style-light-theme")
 
@@ -134,7 +193,7 @@ if (window.location.protocol.includes("extension")) {
 
       RBXRenderer.getRendererElement().style.zIndex = "-1"
 
-      createRoot(document.getElementById('root')!).render(
+      createRoot(document.getElementById('root') || document.getElementById("content") || document.body).render(
         <StrictMode>
           <App />
           <ReviewReminder/>

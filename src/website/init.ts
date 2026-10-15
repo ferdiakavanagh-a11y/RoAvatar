@@ -7,7 +7,7 @@ import { initAvatarHistory, onURLChangeAvatarHistory } from "./profile/avatarHis
 let rendererSuccess: boolean | undefined = undefined
 let rendererSetupInterval: NodeJS.Timeout | undefined = undefined
 let lastURL = ""
-export function initWebsite() {
+export function initWebsite(fullInit: boolean = true) {
     lastURL = window.location.href
 
     FLAGS.ONLINE_ASSETS = false
@@ -45,15 +45,17 @@ export function initWebsite() {
         }
     }
 
-    setInterval(() => {
-        if (lastURL !== window.location.href) {
-            lastURL = window.location.href
-            onURLChange()
-        }
-    })
+    if (fullInit) {
+        setInterval(() => {
+            if (lastURL !== window.location.href) {
+                lastURL = window.location.href
+                onURLChange()
+            }
+        })
 
-    initObserver()
-    initFeatures()
+        initObserver()
+        initFeatures()
+    }
 }
 
 export function onURLChange() {
