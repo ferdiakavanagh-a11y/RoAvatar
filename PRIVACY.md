@@ -1,5 +1,5 @@
 # RoAvatar Privacy Policy
-**Last updated: 08/09/2026 (8. september 2026)**
+**Last updated: 18/10/2026 (18. october 2026)**
 
 RoAvatar is designed to operate locally on your device and to respect your privacy. This policy explains what data the extension collects, how that data is used, and how it is protected.
 
@@ -14,7 +14,7 @@ RoAvatar stores a small amount of data on your device using the browser’s stor
 - Other data required for core functionality
 
 ### 2.2 Sent to API (stored on server)
-Some features marked with (API) require contacting a server through an API, they can be disabled in settings. Certain features like avatar history may result in the backend server validating and possibly updating stored data before sending it back, while others result in no changes on the backend.
+Some automatic features (features that aren't triggered manually) marked with (API) require contacting a server through an API, they can be disabled in settings. Certain features like avatar history may result in the backend server validating and possibly updating stored data before sending it back, while others result in no changes on the backend.
 
 The extension may send:
 - Roblox user IDs

@@ -57,7 +57,7 @@ export default function CaptureButton(): React.JSX.Element {
 
     return <>
         {/*Share button*/}
-        <RadialButton className="left-top-button icon-button" data-tooltip-content="Screenshot" data-tooltip-id="bottom-capture-button" onClick={() => {setCaptureOpen(true)}}>
+        <RadialButton className="left-top-button icon-button" data-tooltip-content="Thumbnail Preview" data-tooltip-id="bottom-capture-button" onClick={() => {setCaptureOpen(true)}}>
             <Icon>photo_camera</Icon>
         </RadialButton>
         <Tooltip id="bottom-capture-button"/>
@@ -72,7 +72,7 @@ export default function CaptureButton(): React.JSX.Element {
                 </button>
             </div>
             <div className="dialog-line"></div>
-            <span className="dialog-text dialog-text-margin roboto-400" style={{marginTop: "5px"}}>The pose in the image reflects your thumbnail pose</span>
+            <span className="dialog-text dialog-text-margin roboto-400" style={{marginTop: "5px"}}>The pose in the image reflects your saved thumbnail pose</span>
             <div className="dialog-line"></div>
             <div className="outfit-capture-container">
                 {outfitImageUrl ?

@@ -2,18 +2,17 @@ import { useContext } from "react";
 import { OutfitFuncContext } from "./context/outfit-context";
 import SelectInput from "./generic/selectInput";
 import { AvatarType } from "roavatar-renderer";
+import { capitalizeFirstLetter, R15_Animations, R6_Animations } from "./generic/animation";
 
-function capitalizeFirstLetter(str: string) {
-  return str.charAt(0).toUpperCase() + str.slice(1)
-}
+
 
 export default function AnimationPicker(): React.JSX.Element  {
     const outfitFunc = useContext(OutfitFuncContext)
 
     const isR6 = outfitFunc.outfitModel.outfit.playerAvatarType === AvatarType.R6
     const alternatives = isR6 ? 
-        ["Idle", "Walk", "Jump", "Fall", "Climb"] : 
-        ["Idle", "Walk", "Run", "Jump", "Fall", "Swim", "Climb"]
+        R6_Animations : 
+        R15_Animations
     alternatives.reverse() //i dont like the most important ones being at the top
     const fixedAnimName = capitalizeFirstLetter(outfitFunc.animName)
 

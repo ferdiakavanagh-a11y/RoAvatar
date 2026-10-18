@@ -19,7 +19,7 @@ import TryInGameButton from './react/tryInGame'
 import Tip from './react/generic/tip'
 import { AlertContext } from './react/context/alert-context'
 import InfoButton from './react/infoButton'
-import { Outfit, OutfitModel, Authentication, type NavigationMenuItems, type Search_Payload, DefaultSearchData, AvatarType, CategoryDictionary, API, SpecialInfo, FLAGS, ItemInfo, SortInfo, arrayBufferToBase64, base64ToArrayBuffer, RBXRenderer, SortDivision } from 'roavatar-renderer'
+import { Outfit, OutfitModel, Authentication, type NavigationMenuItems, type Search_Payload, DefaultSearchData, AvatarType, CategoryDictionary, API, SpecialInfo, FLAGS, ItemInfo, SortInfo, arrayBufferToBase64, base64ToArrayBuffer, RBXRenderer, SortDivision, Instance } from 'roavatar-renderer'
 import CaptureButton from './react/captureButton'
 import { Tooltip } from 'react-tooltip'
 import PluginButton from './react/pluginButton'
@@ -29,6 +29,7 @@ import DiscordButton from './react/discordButton'
 import { ROAVATAR_API } from './react/generic/roavatar-api'
 import BuyItemsButton from './react/buyItems'
 import { CONFIG } from './react/generic/config'
+import VersionPopup from './react/versionPopup'
 
 declare const browser: typeof chrome;
 
@@ -45,6 +46,7 @@ function App() {
   //const [outfit, _setOutfit] = useState<Outfit>(new Outfit())
   const [navigationMenuItems, setNavigationMenuItems] = useState<NavigationMenuItems | undefined>(undefined)
 
+  const [currentRig, setCurrentRig] = useState<Instance | undefined>(undefined)
   const [currentAnimName, _setCurrentAnimName] = useState<string>("idle")
   const [canSetAnimName, setCanSetAnimName] = useState<boolean>(true)
   const [animLock, setAnimLock] = useState<AnimLock>(new AnimLock())
@@ -466,8 +468,9 @@ function App() {
     <AlertContext value={alert}>
       <AuthContext value={auth}>
         <OutfitContext value={outfit}>
-          <OutfitFuncContext value={{setOutfit, _setOutfit, setAnimName: setCurrentAnimName, animName: currentAnimName, setCanSetAnimName, animLock, setAnimLock, outfitModel, setOutfitModel, _setOutfitModel}}>
+          <OutfitFuncContext value={{setOutfit, _setOutfit, setAnimName: setCurrentAnimName, animName: currentAnimName, setCanSetAnimName, animLock, setAnimLock, outfitModel, setOutfitModel, _setOutfitModel, currentRig}}>
             <div className='main'>
+              <VersionPopup/>
               <div id="alert" className={`errorAlert${alertEnabled ? " alertOn":""}${alertIsWarning ? " warningAlert" : ""}${alertIsSuccess ? " successAlert" : ""}`} onMouseEnter={stopAlert}>
                 {alertText}
               </div>
@@ -549,7 +552,7 @@ function App() {
                 </div>
 
                 {/*avatar preview*/}
-                <AvatarPreview setSaveAlwaysOn={setSaveAlwaysOn} setOutfit={setOutfit} animName={currentAnimName}>
+                <AvatarPreview setSaveAlwaysOn={setSaveAlwaysOn} setOutfit={setOutfit} animName={currentAnimName} setCurrentRig={setCurrentRig}>
                   <AvatarAdjustment/>
                   {categorySource === "Marketplace" &&
                   nameToCategory.get(categoryType) === "AvatarAnimations" &&

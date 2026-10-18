@@ -1332,7 +1332,7 @@ dialog::backdrop {
     border-radius: 100000000px;
 
     overflow: hidden;
-    max-height: calc(44px * 4);
+    max-height: calc(44px * 5);
 
     width: 44px;
     padding-top: 2px;
@@ -1354,7 +1354,7 @@ dialog::backdrop {
 .small-menu-icons {
     width: 100%;
     overflow: hidden;
-    max-height: calc(44px * 3);
+    max-height: calc(44px * 4);
     padding: 0%;
     display: flex;
     flex-direction: column;
@@ -1849,6 +1849,11 @@ textarea {
     font-size: 1.3em;
 }
 
+.dialog-text-subtitle {
+    color: var(--font-color);
+    font-size: 1.7em;
+}
+
 .dialog-text-margin {
     margin: 0 50px 10px 0;
 }
@@ -2093,6 +2098,11 @@ textarea {
 
 .outfit-capture-container {
     align-self: center;
+    display: flex;
+    flex-direction: row;
+    justify-content: center;
+    align-items: center;
+    gap: 12px;
 }
 
 .outfit-capture {
@@ -2368,6 +2378,7 @@ textarea {
     width: 90%;
     margin: 12px 0px;
     gap: 0.5em;
+    align-items: center;
 }
 
 .choice-button {
@@ -2411,4 +2422,92 @@ textarea {
 .left-positioned-select {
     position: absolute;
     left: 0;
+}
+
+.animation-controller {
+    display: flex;
+    flex-direction: row;
+    justify-content: space-between;
+    align-items: center;
+
+    width: 90%;
+}
+
+.animation-controller > .slider-input {
+    width: 80%;
+}
+
+.animation-selection {
+    display: flex;
+    flex-direction: row;
+    justify-content: space-between;
+    align-items: center;
+
+    width: 90%;
+}
+
+.animation-selection > form {
+    width: 50%;
+    background: transparent;
+    color: var(--font-color);
+    border: none;
+    font-size: 1.2em;
+    flex-grow: unset;
+}
+
+.animation-selection > form > input {
+    width: 100%;
+    background: transparent;
+    color: var(--font-color);
+    border: none;
+    font-size: 1.2em;
+    text-align: right;
+}
+
+.adjust-line {
+    height: 1px;
+    width: 90%;
+    margin: 2px 0;
+    background-color: var(--button-background);
+}
+
+.slider-value-input {
+    width: 4em;
+    margin-left: auto;
+    background-color: transparent;
+    border: none;
+    color: var(--font-color);
+    font-size: 1.25em;
+    text-align: right;
+}
+
+.choice-button-container > input[type="color"] {
+    border: none;
+    padding: 0;
+    margin: 0;
+    width: 40%;
+    border-radius: 1em;
+}
+
+.choice-color-container {
+    color: var(--font-color);
+    font-size: 1.5em;
+    display: flex;
+    flex-direction: row;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.gpose-downward-container {
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-start;
+    align-items: center;
+    width: 100%;
+    margin-bottom: auto;
+}
+
+.gpose-info-text {
+    color: var(--font-color);
+    font-size: 1.75em;
 }

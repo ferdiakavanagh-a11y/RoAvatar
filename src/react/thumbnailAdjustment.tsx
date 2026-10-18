@@ -289,12 +289,12 @@ export default function ThumbnailAdjustment({isOpen, resetCount}: {isOpen: boole
     const lastResetCount = useRef(0)
     const lastHeadshotThumbnailCustomization = useRef<ThumbnailCustomization>(new ThumbnailCustomization(ThumbnailCustomizationType.AvatarHeadshot))
     const lastAvatarThumbnailCustomization = useRef<ThumbnailCustomization>(new ThumbnailCustomization(ThumbnailCustomizationType.Avatar))
+    const lastIsOpen = useRef<boolean>(false)
 
     const avatarPreview = document.getElementById("avatar-preview")
 
     const playerAvatarType = outfit.playerAvatarType
     const thumbnailCustomization = lastSelectedType.current === "Fullbody" ? avatarCustomization : headshotCustomization
-    const avatarPreviewBottom = avatarPreview?.getBoundingClientRect().bottom
 
     const selectedCameraType: SelectedCameraType = thumbnailCustomization.distanceScale < 0 ? "Legacy" : "Custom"
 
@@ -318,17 +318,19 @@ export default function ThumbnailAdjustment({isOpen, resetCount}: {isOpen: boole
         const newCustomization = newValue === "Fullbody" ? avatarCustomization : headshotCustomization
 
         const newSelectedCameraType: SelectedCameraType = newCustomization.distanceScale < 0 ? "Legacy" : "Custom"
-        const newCameraData = getCameraData().clone()
-        newCameraData.transition(getCameraTypeName(newValue, newSelectedCameraType))
-        newCameraData.thumbnailFov = newCustomization.fieldOfViewDeg
-        newCameraData.yRot = newCustomization.yRotDeg
-        newCameraData.distanceScale = newCustomization.distanceScale
-        setCameraData(newCameraData)
+        if (isOpen) {
+            const newCameraData = getCameraData().clone()
+            newCameraData.transition(getCameraTypeName(newValue, newSelectedCameraType))
+            newCameraData.thumbnailFov = newCustomization.fieldOfViewDeg
+            newCameraData.yRot = newCustomization.yRotDeg
+            newCameraData.distanceScale = newCustomization.distanceScale
+            setCameraData(newCameraData)
 
-        updateAnimation(thumbnailCustomization, newValue, selectedCameraType)
+            updateAnimation(thumbnailCustomization, newValue, selectedCameraType)
+        }
 
         _setSelectedType(newValue)
-    }, [avatarCustomization, headshotCustomization, selectedCameraType, thumbnailCustomization, updateAnimation])
+    }, [avatarCustomization, headshotCustomization, selectedCameraType, thumbnailCustomization, updateAnimation, isOpen])
 
     //update animation lock
     useEffect(() => {
@@ -399,14 +401,16 @@ export default function ThumbnailAdjustment({isOpen, resetCount}: {isOpen: boole
 
         const newSelectedCameraType: SelectedCameraType = newCustomization.distanceScale < 0 ? "Legacy" : "Custom"
 
-        const newCameraData = getCameraData().clone()
-        newCameraData.distanceScale = newCustomization.distanceScale
-        newCameraData.thumbnailFov = newCustomization.fieldOfViewDeg
-        newCameraData.yRot = newCustomization.yRotDeg
-        newCameraData.transition(getCameraTypeName(selectedType, newSelectedCameraType))
-        setCameraData(newCameraData)
-        updateAnimation(newCustomization, selectedType, newSelectedCameraType)
-    }, [updateAnimation, selectedType])
+        if (isOpen) {
+            const newCameraData = getCameraData().clone()
+            newCameraData.distanceScale = newCustomization.distanceScale
+            newCameraData.thumbnailFov = newCustomization.fieldOfViewDeg
+            newCameraData.yRot = newCustomization.yRotDeg
+            newCameraData.transition(getCameraTypeName(selectedType, newSelectedCameraType))
+            setCameraData(newCameraData)
+            updateAnimation(newCustomization, selectedType, newSelectedCameraType)
+        }
+    }, [updateAnimation, selectedType, isOpen])
 
     //update selected camera type
     const setSelectedCameraType = useCallback((newValue: SelectedCameraType) => {
@@ -414,11 +418,13 @@ export default function ThumbnailAdjustment({isOpen, resetCount}: {isOpen: boole
         newCustomization.distanceScale = newValue === "Custom" ? Math.abs(newCustomization.distanceScale) : -Math.abs(newCustomization.distanceScale)
         setThumbnailCustomization(newCustomization)
 
-        const newCameraData = getCameraData().clone()
-        newCameraData.transition(getCameraTypeName(selectedType, newValue))
-        setCameraData(newCameraData)
-        updateAnimation(newCustomization, selectedType, newValue)
-    }, [selectedType, setThumbnailCustomization, thumbnailCustomization, updateAnimation])
+        if (isOpen) {
+            const newCameraData = getCameraData().clone()
+            newCameraData.transition(getCameraTypeName(selectedType, newValue))
+            setCameraData(newCameraData)
+            updateAnimation(newCustomization, selectedType, newValue)
+        }
+    }, [selectedType, setThumbnailCustomization, thumbnailCustomization, updateAnimation, isOpen])
 
     //get thumbnail customizations
     useEffect(() => {
@@ -479,35 +485,39 @@ export default function ThumbnailAdjustment({isOpen, resetCount}: {isOpen: boole
 
     //update for open/close
     useEffect(() => {
-        const cameraData = getCameraData()
+        if (lastIsOpen.current !== isOpen) {
+            const cameraData = getCameraData()
 
-        if (isOpen && (cameraData.type !== "AvatarHeadshot" && cameraData.type !== "Avatar" && cameraData.type !== "AvatarHeadshotLegacy" && cameraData.type !== "AvatarLegacy")) { // on opening
-            outfitFunc.setCanSetAnimName(false)
+            if (isOpen && (cameraData.type !== "AvatarHeadshot" && cameraData.type !== "Avatar" && cameraData.type !== "AvatarHeadshotLegacy" && cameraData.type !== "AvatarLegacy")) { // on opening
+                outfitFunc.setCanSetAnimName(false)
 
-            const newCameraData = cameraData.clone()
-            newCameraData.transition(getCameraTypeName(selectedType, selectedCameraType))
-            setCameraData(newCameraData)
+                const newCameraData = cameraData.clone()
+                newCameraData.transition(getCameraTypeName(selectedType, selectedCameraType))
+                setCameraData(newCameraData)
 
-            const plane = RBXRenderer.plane
-            const shadowPlane = RBXRenderer.shadowPlane
-            if (plane) plane.visible = false
-            if (shadowPlane) shadowPlane.visible = false
+                const plane = RBXRenderer.plane
+                const shadowPlane = RBXRenderer.shadowPlane
+                if (plane) plane.visible = false
+                if (shadowPlane) shadowPlane.visible = false
 
-            updateAnimation(headshotCustomization, selectedType, selectedCameraType)
-        } else if (!isOpen && (cameraData.type !== "Editor")) { // on closing
-            outfitFunc.setCanSetAnimName(true)
+                updateAnimation(headshotCustomization, selectedType, selectedCameraType)
+            } else if (!isOpen && (cameraData.type !== "Editor")) { // on closing
+                outfitFunc.setCanSetAnimName(true)
 
-            const newCameraData = cameraData.clone()
-            newCameraData.transition("Editor")
-            setCameraData(newCameraData)
+                const newCameraData = cameraData.clone()
+                newCameraData.transition("Editor")
+                setCameraData(newCameraData)
 
-            const plane = RBXRenderer.plane
-            const shadowPlane = RBXRenderer.shadowPlane
-            if (plane) plane.visible = true
-            if (shadowPlane) shadowPlane.visible = true
+                const plane = RBXRenderer.plane
+                const shadowPlane = RBXRenderer.shadowPlane
+                if (plane) plane.visible = true
+                if (shadowPlane) shadowPlane.visible = true
 
-            outfitFunc.setAnimLock(new AnimLock())
-            outfitFunc.setAnimName(`idle`, true)
+                outfitFunc.setAnimLock(new AnimLock())
+                outfitFunc.setAnimName(`idle`, true)
+            }
+
+            lastIsOpen.current = isOpen
         }
     }, [isOpen, outfitFunc, headshotCustomization, updateAnimation, selectedType, selectedCameraType])
 
@@ -527,7 +537,7 @@ export default function ThumbnailAdjustment({isOpen, resetCount}: {isOpen: boole
                 setTop(newTop)
             }
         }
-    }, [setTop, top, avatarPreviewBottom, isOpen])
+    }, [setTop, top, isOpen])
 
     //control using viewport
     useEffect(() => {

@@ -2,10 +2,12 @@ import { useCallback, useEffect, useRef, useState } from "react"
 import { mapNum } from "roavatar-renderer"
 
 //slider input that takes value from 0 to 1 and calls setValue with value from 0 to 1
-export default function SliderInput({value, setValue}: {value: number, setValue: (value: number, mouseUp: boolean) => void}): React.JSX.Element {
+export default function SliderInput({value, setValue}: {value: number | (() => number), setValue: (value: number, mouseUp: boolean) => void}): React.JSX.Element {
     const [isDragging, setIsDragging] = useState(false)
 
     const sliderInput = useRef<HTMLDivElement>(null)
+    
+    const [updateCount, setUpdateCount] = useState<number>(0)
 
     const updateSlider = useCallback((e: MouseEvent, isMouseUp: boolean, forceMouseDown: boolean = false) => {
         if (e.buttons !== 1 && isDragging && !isMouseUp && !forceMouseDown) {
@@ -47,13 +49,26 @@ export default function SliderInput({value, setValue}: {value: number, setValue:
         }
     })
 
+    //update 30 times per second if value is a function
+    useEffect(() => {
+        const updateInterval = setInterval(() => {
+            setUpdateCount((updateCount + 1) % 10000)
+        }, 33)
+
+        return () => {
+            clearInterval(updateInterval)
+        }
+    })
+
+    const trueValue = (value instanceof Function) ? value() : value
+
     return <div className="slider-input" ref={sliderInput} onMouseDown={(e) => {
             //console.log("down")
             e.preventDefault()
             setIsDragging(true)
             updateSlider(e as unknown as MouseEvent, false, true)
         }}>
-        <div className={`slider-input-thumb${isDragging ? " slider-input-thumb-dragging" : ""}`} style={{left: value * 100 + "%"}}></div>
-        <div className="slider-input-fill" style={{width: value * 100 + "%"}}></div>
+        <div className={`slider-input-thumb${isDragging ? " slider-input-thumb-dragging" : ""}`} style={{left: trueValue * 100 + "%"}}></div>
+        <div className="slider-input-fill" style={{width: trueValue * 100 + "%"}}></div>
     </div>
 }

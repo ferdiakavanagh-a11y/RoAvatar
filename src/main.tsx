@@ -141,7 +141,9 @@ if (window.location.protocol.includes("extension") || window.location.pathname.e
         RBXRenderer.firstScene.msaa = 0
       }
       if (theme === "light") {
-        RBXRenderer.setBackgroundColor(0xdbdbdc)
+        RBXRenderer.setBackgroundColor("#dbdbdc")
+      } else {
+        RBXRenderer.setBackgroundColor("#2b2d33")
       }
 
       if (CONFIG.MULTI_VIEWPORT) {

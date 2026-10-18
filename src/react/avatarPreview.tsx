@@ -2,13 +2,14 @@ import * as THREE from 'three';
 import { useCallback, useContext, useEffect, useState } from "react"
 import { AuthContext } from "./context/auth-context"
 import { OutfitContext, OutfitFuncContext } from "./context/outfit-context"
-import { AvatarType, Instance, Outfit, Authentication, API, RBX, RBXRenderer, FLAGS, mountElement, LayeredClothingAssetOrder, base64ToArrayBuffer, AnimatorWrapper, HumanoidDescriptionWrapper, Vector3, getCameraCFrameForHeadshotCustomized, lerpCFrame, CFrame, FindFirstMatchingAttachment, AttachmentWrapper, getCameraCFrameForAvatarCustomized, BackgroundRenderer, OutfitModel, getCameraCFrameForHeadshotNonCustomized, getThumbnailCameraCFrame, OutfitRenderer } from 'roavatar-renderer';
+import { AvatarType, Instance, Outfit, Authentication, API, RBX, RBXRenderer, FLAGS, mountElement, LayeredClothingAssetOrder, base64ToArrayBuffer, AnimatorWrapper, HumanoidDescriptionWrapper, Vector3, getCameraCFrameForHeadshotCustomized, lerpCFrame, CFrame, FindFirstMatchingAttachment, AttachmentWrapper, getCameraCFrameForAvatarCustomized, BackgroundRenderer, OutfitModel, getCameraCFrameForHeadshotNonCustomized, getThumbnailCameraCFrame, OutfitRenderer, type Vec3 } from 'roavatar-renderer';
 import { CameraData, getCameraData, setCameraData } from './generic/cameraData';
 import { Tooltip } from 'react-tooltip';
 import { CONFIG } from './generic/config';
 import { getRotationLines, getPositionLines, getScaleLines } from './generic/adjustmentGeometry';
 import { ROAVATAR_API } from './generic/roavatar-api';
 import { getSetting } from './generic/settings';
+import { rigFaceTarget } from './generic/lookAnimation';
 
 let hasLoadedAvatar = false
 let outfitRenderer: OutfitRenderer | undefined = undefined
@@ -27,6 +28,16 @@ const jumpPower = 50
 let addedHeight = -0.1
 let heightPower = 0
 let jumpTime = 0
+
+const faceCameraSeconds = 10
+const faceCameraTransition = 0.1 * 3.5 / faceCameraSeconds
+let lastClickTime = 0
+let lastFaceCameraTime = 0
+let faceCameraPos: Vec3 = [0,0,0]
+
+function plateuFunc(x: number) {
+    return 6*Math.pow(x,5) - 15*Math.pow(x,4) + 10*Math.pow(x,3)
+}
 
 function updateAnim(animName: string, currentRig: Instance, auth?: Authentication) {
     if (!CONFIG.USE_OUTFIT_RENDERER) {
@@ -60,7 +71,7 @@ function updateAnim(animName: string, currentRig: Instance, auth?: Authenticatio
     }
 }
 
-function setRigTo(animName: string, newRigType: AvatarType, auth: Authentication, setError: (a: string | undefined) => void) {
+function setRigTo(animName: string, newRigType: AvatarType, auth: Authentication, setError: (a: string | undefined) => void, setCurrentRig: (a: Instance | undefined) => void) {
     addedHeight = -0.1
     heightPower = 0
     jumpTime = 0
@@ -72,6 +83,7 @@ function setRigTo(animName: string, newRigType: AvatarType, auth: Authentication
             if (currentRig) {
                 currentRig.Destroy()
                 currentRig = undefined
+                setCurrentRig(undefined)
             }
             currentRigType = newRigType
 
@@ -82,6 +94,7 @@ function setRigTo(animName: string, newRigType: AvatarType, auth: Authentication
                     const newRig = result.generateTree().GetChildren()[0]
 
                     currentRig = newRig
+                    setCurrentRig(newRig)
                     RBXRenderer.addInstance(currentRig, auth);
                     // eslint-disable-next-line @typescript-eslint/no-explicit-any
                     (window as any).rig = currentRig
@@ -104,7 +117,7 @@ function setRigTo(animName: string, newRigType: AvatarType, auth: Authentication
 
 let currentlyUpdatingPreview = false
 let failedLastDescription = false
-function updatePreview(currentAnim: string, outfitModel: OutfitModel, auth: Authentication, setError: (a: string | undefined) => void) {
+function updatePreview(currentAnim: string, outfitModel: OutfitModel, auth: Authentication, setError: (a: string | undefined) => void, setCurrentRig: (a: Instance | undefined) => void) {
     if (CONFIG.USE_OUTFIT_RENDERER) {
         if (!outfitRenderer) {
             outfitRenderer = new OutfitRenderer(auth, outfitModel)
@@ -112,6 +125,7 @@ function updatePreview(currentAnim: string, outfitModel: OutfitModel, auth: Auth
 
         outfitRenderer.onSuccess.Connect(() => {
             currentRig = outfitRenderer?.currentRig;
+            setCurrentRig(currentRig);
             // eslint-disable-next-line @typescript-eslint/no-explicit-any
             (window as any).rig = currentRig
             setError(undefined)
@@ -172,7 +186,7 @@ function updatePreview(currentAnim: string, outfitModel: OutfitModel, auth: Auth
 
             const promises: Promise<undefined>[] = []
             if (newRigType !== currentRigType || !currentRig) {
-                promises.push(setRigTo(currentAnim, newRigType, auth, setError))
+                promises.push(setRigTo(currentAnim, newRigType, auth, setError, setCurrentRig))
             }
 
             Promise.all(promises).then(() => {
@@ -201,7 +215,7 @@ function updatePreview(currentAnim: string, outfitModel: OutfitModel, auth: Auth
                                 failedLastDescription = false
                                 currentlyUpdatingPreview = false
                                 if (outfitModel !== lastOutfitModel && lastOutfitModel) {
-                                    updatePreview(currentAnim, lastOutfitModel, auth, setError)
+                                    updatePreview(currentAnim, lastOutfitModel, auth, setError, setCurrentRig)
                                 }
                                 setError(undefined)
                             } else {
@@ -356,7 +370,7 @@ function updateMousePos(e: MouseEvent) {
     mousePos = [e.clientX, e.clientY]
 }
 
-export default function AvatarPreview({ children, setSaveAlwaysOn, setOutfit, animName }: React.PropsWithChildren & { setSaveAlwaysOn: (a: boolean) => void, setOutfit: (a: Outfit) => void, animName: string }): React.JSX.Element {
+export default function AvatarPreview({ children, setSaveAlwaysOn, setOutfit, animName, setCurrentRig }: React.PropsWithChildren & { setSaveAlwaysOn: (a: boolean) => void, setOutfit: (a: Outfit) => void, animName: string, setCurrentRig: (a: Instance | undefined) => void }): React.JSX.Element {
     const auth = useContext(AuthContext)
     const outfit = useContext(OutfitContext)
     const outfitFunc = useContext(OutfitFuncContext)
@@ -405,7 +419,7 @@ export default function AvatarPreview({ children, setSaveAlwaysOn, setOutfit, an
         }
     }, [outfit])
 
-    //jump with space
+    //jump with space & look at camera
     useEffect(() => {
         const keyDownListener = (e: KeyboardEvent) => {
             if ((e.target as HTMLElement)?.tagName == "INPUT") {
@@ -420,10 +434,35 @@ export default function AvatarPreview({ children, setSaveAlwaysOn, setOutfit, an
             }
         }
 
+        const clickListener = (e: MouseEvent) => {
+            if ((e.target as HTMLElement)?.tagName == "INPUT") {
+                return
+            }
+
+            if ((e.target as HTMLElement).id !== "OutfitInfo-outfit-image-3d") return
+
+            const currentTime = Date.now() / 1000
+
+            const transitionTime = currentTime - lastFaceCameraTime
+
+            if (currentTime - lastClickTime < 0.3) {
+                if (transitionTime > faceCameraSeconds) { //transition over
+                    lastFaceCameraTime = currentTime
+                    faceCameraPos = RBXRenderer.firstScene.camera.position.toArray() as Vec3
+                } else if (transitionTime < faceCameraSeconds - faceCameraTransition * faceCameraSeconds && transitionTime > faceCameraTransition * faceCameraSeconds) {
+                    lastFaceCameraTime = currentTime - faceCameraSeconds + faceCameraTransition * faceCameraSeconds
+                }
+            }
+
+            lastClickTime = currentTime
+        }
+
         document.addEventListener("keydown", keyDownListener)
+        document.addEventListener("click", clickListener)
         
         return () => {
             document.removeEventListener("keydown", keyDownListener)
+            document.removeEventListener("click", clickListener)
         }
     })
 
@@ -477,10 +516,10 @@ export default function AvatarPreview({ children, setSaveAlwaysOn, setOutfit, an
                 }
             } else {
                 lastOutfitModel = outfitFunc.outfitModel
-                updatePreview(animName, outfitFunc.outfitModel, auth, setError)
+                updatePreview(animName, outfitFunc.outfitModel, auth, setError, setCurrentRig)
             }
         }
-    }, [auth, outfit, setOutfit, outfitFunc, setSaveAlwaysOn, animName])
+    }, [auth, outfit, setOutfit, outfitFunc, setSaveAlwaysOn, animName, setCurrentRig])
 
     //play/load animations
     useEffect(() => {
@@ -496,6 +535,8 @@ export default function AvatarPreview({ children, setSaveAlwaysOn, setOutfit, an
         }
 
         animationInterval = window.setInterval(() => {
+            const currentTime = Date.now() / 1000
+
             //update camera position
             const cameraData = getCameraData()
             const newCameraData = cameraData.clone()
@@ -533,7 +574,7 @@ export default function AvatarPreview({ children, setSaveAlwaysOn, setOutfit, an
                     if (!animLock.locked) {
                         outfitRenderer.animateOnce(deltaTime)
                     } else {
-                        outfitRenderer.animateOnce(deltaTime,
+                        outfitRenderer.animateOnce(deltaTime * animLock.deltaTimeMult,
                             animLock.lockType === "time" ? animLock.value : undefined, 
                             animLock.lockType === "keyframe" ? animLock.value : undefined
                         )
@@ -557,17 +598,13 @@ export default function AvatarPreview({ children, setSaveAlwaysOn, setOutfit, an
                             if (!animLock.locked) {
                                 animatorW.renderAnimation(deltaTime)
                             } else {
-                                animatorW.renderAnimation(deltaTime,
+                                animatorW.renderAnimation(deltaTime * animLock.deltaTimeMult,
                                     animLock.lockType === "time" ? animLock.value : undefined, 
                                     animLock.lockType === "keyframe" ? animLock.value : undefined
                                 )
                                 //const time = animLock.lockType === "time" ? animLock.value : currentTrack.getKeyframeTime(animLock.value)
                                 //currentTrack.setTime(time)
                             }
-
-                            currentRig.preRender()
-                            
-                            RBXRenderer.addInstance(currentRig, auth)
                         }
                     } else if (FLAGS.LOAD_TEST_PLACE) {
                         currentRig.preRender()
@@ -577,20 +614,20 @@ export default function AvatarPreview({ children, setSaveAlwaysOn, setOutfit, an
                 }
             }
 
+            const normTransitionTime = cameraData.getNormalizedPassedTransitionTime()
+            const isTransition = cameraData.isTransition()
+
             if (currentRig) {
                 //update camera
-                const normTransitionTime = cameraData.getNormalizedPassedTransitionTime()
-                const isTransition = cameraData.isTransition()
-
                 let targetCF = new CFrame()
 
                 const controls = RBXRenderer.getRendererControls()
                 if (controls) {
-                    controls.maxDistance = cameraData.type === "Editor" && !cameraData.isTransition() ? 25 : 8 //so camera isnt super far away when transitioning to editor
+                    controls.maxDistance = ["Editor", "GPose"].includes(cameraData.type) && !cameraData.isTransition() ? 25 : 8 //so camera isnt super far away when transitioning to editor
                     controls.update(0)
                     targetCF = RBXRenderer.getCameraCFrame()
 
-                    controls.enabled = cameraData.type === "Editor" && !isTransition
+                    controls.enabled = ["Editor", "GPose"].includes(cameraData.type) && !isTransition
                 }
 
                 if (cameraData.type === "AvatarHeadshot") {
@@ -638,6 +675,42 @@ export default function AvatarPreview({ children, setSaveAlwaysOn, setOutfit, an
 
             //add extra details
             renderExtraDetails(getCameraData())
+
+            //render instances
+            if (currentRig && auth) {
+                const faceTime = currentTime - lastFaceCameraTime
+                if (faceTime < faceCameraSeconds) {
+                    const normTime = faceTime / faceCameraSeconds
+                    //const sinVal = Math.sin(faceTime / faceCameraSeconds * Math.PI)
+                    let faceCameraWeight = 1 - Math.abs(Math.pow(2*normTime - 1, 3)) //Math.min((1 - Math.pow(1 - sinVal, 4))*1.25,1)
+
+                    if (normTime <= faceCameraTransition) {
+                        faceCameraWeight = plateuFunc(normTime / faceCameraTransition)
+                    } else if (normTime >= 1 - faceCameraTransition) {
+                        faceCameraWeight = 1 - plateuFunc((normTime - (1 - faceCameraTransition)) / faceCameraTransition)
+                    } else {
+                        faceCameraWeight = 1
+                    }
+
+                    if (cameraData.type === "Editor" && isTransition) {
+                        faceCameraWeight *= normTransitionTime
+                    } else if (cameraData.type !== "Editor") {
+                        if (isTransition) {
+                            faceCameraWeight *= (1 - normTransitionTime)
+                        } else {
+                            faceCameraWeight *= 0
+                        }
+                    }
+
+                    if (rigFaceTarget(currentRig, faceCameraPos, faceCameraWeight) <= 0) lastFaceCameraTime = 0
+                }
+
+                rigFaceTarget(currentRig, cameraData.gposeFacePos, cameraData.faceWeight)
+
+                currentRig.preRender()
+                            
+                RBXRenderer.addInstance(currentRig, auth)
+            }
 
             //update renderer size and interaction
             const container = document.getElementById("avatar-preview")

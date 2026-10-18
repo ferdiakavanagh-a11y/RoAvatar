@@ -6,8 +6,9 @@ import ThumbnailAdjustment from "./thumbnailAdjustment";
 import { cleanString } from "roavatar-renderer";
 import { Tooltip } from "react-tooltip";
 import { getCameraData, setCameraData } from "./generic/cameraData";
+import GPose from "./gpose";
 
-type ButtonType = "adjust" | "order" | "thumbnail"
+type ButtonType = "adjust" | "order" | "thumbnail" | "gpose"
 
 function MenuIcon({title, open, buttonOpen, type, icon, toggleButton}: {title: string, open: boolean, buttonOpen: boolean, type: ButtonType, icon: string, toggleButton: (a: ButtonType) => void}): React.JSX.Element {
     return <>
@@ -76,6 +77,7 @@ export function AvatarAdjustment(): React.JSX.Element {
     const adjustOpen = buttonOpen && currentButton === "adjust"
     const orderOpen = buttonOpen && currentButton === "order"
     const thumbnailOpen = buttonOpen && currentButton === "thumbnail"
+    const gposeOpen = buttonOpen && currentButton === "gpose"
 
     return <>
         <ul ref={menuRef} className='menu-icons'>
@@ -92,6 +94,7 @@ export function AvatarAdjustment(): React.JSX.Element {
                     <MenuIcon title="Accessory Adjustment" type="adjust" icon="eyeglasses_2" open={adjustOpen} buttonOpen={buttonOpen} toggleButton={toggleButton}/>
                     <MenuIcon title="Layered Clothing Order" type="order" icon="apparel" open={orderOpen} buttonOpen={buttonOpen} toggleButton={toggleButton}/>
                     <MenuIcon title="Profile Picture" type="thumbnail" icon="account_circle" open={thumbnailOpen} buttonOpen={buttonOpen} toggleButton={toggleButton}/>
+                    <MenuIcon title="Screenshot Mode" type="gpose" icon="photo_camera_front" open={gposeOpen} buttonOpen={buttonOpen} toggleButton={toggleButton}/>
                 </ul>
             </ul>
             {/*Accessory adjustment buttons*/}
@@ -116,5 +119,6 @@ export function AvatarAdjustment(): React.JSX.Element {
         <AccessoryAdjustment isOpen={adjustOpen} adjustType={adjustType}/>
         <OrderAdjustment isOpen={orderOpen}/>
         <ThumbnailAdjustment isOpen={thumbnailOpen} resetCount={thumbnailResetCount}/>
+        <GPose isOpen={gposeOpen}/>
     </>
 }

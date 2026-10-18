@@ -1,8 +1,13 @@
-import { CFrame, deg, RBXRenderer, Event, lerp } from "roavatar-renderer"
+import { CFrame, deg, RBXRenderer, Event, lerp, type Vec3 } from "roavatar-renderer"
 import type { AdjustType } from "../accessoryAdjustment"
 
-export type CameraDataType = "Editor" | "AvatarHeadshot" | "Avatar" | "AvatarHeadshotLegacy" | "AvatarLegacy"
+export type CameraDataType = "Editor" | "AvatarHeadshot" | "Avatar" | "AvatarHeadshotLegacy" | "AvatarLegacy" | "GPose"
 export class CameraData {
+    /**
+     * IMPORTANT!!!!
+     * When adding anything here REMEMBER to add it to CLONE or youll be debugging for hours
+     */
+
     canFocus: boolean = true
     type: CameraDataType = "Editor"
     transitionStart: number = 0
@@ -24,6 +29,13 @@ export class CameraData {
     adjustmentId: bigint = -1n
     adjustmentOpen: boolean = false
 
+    //gpose
+    gposeFov: number = 70
+    gposeFacePos: Vec3 = [0,0,0]
+    gposeFaceWeight: number = 0
+
+    previousFaceWeight: number = 0
+
     getPassedTransitionTime() {
         const currentTime = Date.now() / 1000
         return currentTime - this.transitionStart
@@ -42,8 +54,15 @@ export class CameraData {
         let targetFov = this.editorFov
         if (this.type === "AvatarHeadshot" || this.type === "Avatar") targetFov = this.thumbnailFov
         if (this.type === "AvatarHeadshotLegacy" || this.type === "AvatarLegacy") targetFov = this.legacyFov
+        if (this.type === "GPose") targetFov = this.gposeFov
         const fov = this.isTransition() ? lerp(this.previousFov, targetFov, normTransitionTime) : targetFov
         return fov
+    }
+
+    get faceWeight() {
+        const normTransitionTime = this.getNormalizedPassedTransitionTime()
+        const targetFaceWeight = this.type === "GPose" ? this.gposeFaceWeight : 0
+        return this.isTransition() ? lerp(this.previousFaceWeight, targetFaceWeight, normTransitionTime) : targetFaceWeight
     }
 
     get rotateBackground() {
@@ -67,8 +86,9 @@ export class CameraData {
         if (type === this.type) return
 
         this.previousFov = this.fov //has to be at the start so it calculates correctly
+        this.previousFaceWeight = this.faceWeight
         this.type = type
-        this.canFocus = type === "Editor"
+        this.canFocus = ["Editor", "GPose"].includes(type)
         this.transitionStart = Date.now() / 1000
         this.updatePreviousCF()
     }
@@ -93,6 +113,12 @@ export class CameraData {
         copy.adjustmentType = this.adjustmentType
         copy.adjustmentId = this.adjustmentId
         copy.adjustmentOpen = this.adjustmentOpen
+
+        copy.gposeFov = this.gposeFov
+        copy.gposeFacePos = [...this.gposeFacePos]
+        copy.gposeFaceWeight = this.gposeFaceWeight
+
+        copy.previousFaceWeight = this.previousFaceWeight
 
         return copy
     }

@@ -1,11 +1,12 @@
 import { createContext } from 'react'
-import { Outfit, OutfitModel } from 'roavatar-renderer'
+import { Instance, Outfit, OutfitModel } from 'roavatar-renderer'
 
 export const OutfitContext = createContext<Outfit>(new Outfit())
 
 export class AnimLock {
     locked: boolean = false
-    lockType: "time" | "keyframe" = "time"
+    lockType: "time" | "keyframe" | "none" = "time"
+    deltaTimeMult: number = 1
     value: number = 0
 }
 
@@ -20,6 +21,7 @@ export const OutfitFuncContext = createContext<{
     outfitModel: OutfitModel,
     setOutfitModel: (a: OutfitModel) => void,
     _setOutfitModel: (a: OutfitModel) => void,
+    currentRig: Instance | undefined,
 }>({
     setOutfit: () => {},
     _setOutfit: () => {},
@@ -31,4 +33,5 @@ export const OutfitFuncContext = createContext<{
     outfitModel: new OutfitModel(),
     setOutfitModel: () => {},
     _setOutfitModel: () => {},
+    currentRig: undefined,
 })
