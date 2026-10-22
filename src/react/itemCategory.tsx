@@ -97,7 +97,7 @@ async function getFavoriteLooks(userId: number, cursor: string, signal: AbortSig
                 creatorName: look.curator.name,
                 creatorTargetId: look.curator.id,
                 itemRestrictions: itemRestrictions,
-                price: look.totalPrice,
+                price: look.totalValue,
                 lowestResalePrice: 0,
                 hasResellers: false,
                 isOffSale: isOffSale,
