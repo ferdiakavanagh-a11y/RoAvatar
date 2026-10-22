@@ -1716,6 +1716,20 @@ form {
     width: calc(223px + 36px)
 }
 
+@media screen and (max-width: 1000px) {
+    .searchfilter-search-input form input {
+        background-color: transparent;
+        border: none;
+        color: var(--font-color);
+        font-size: 1.5em;
+        outline: none;
+        width: 180px;
+    }
+
+    .searchfilter-search-input.empty form input {
+        width: calc(180px + 36px)
+    }
+}
 .searchfilter-search-cancel {
     background-color: transparent;
     border: none;
