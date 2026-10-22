@@ -604,7 +604,7 @@ export default function ItemCategory({children, categorySource = "Inventory", se
         </> : null}
         {
             itemInfos.map((item) => (
-                <ItemCard key={`${item.itemType}-${item.id}`} auth={auth} itemInfo={item} refresh={refresh} showViewButton={categorySource === "Favorites"} canEditOutfit={isOutfits} isWorn={item.itemType === "Asset" ? outfit.containsAsset(Number(item.id)) || wornItems.includes(Number(item.id)) : false} includeName={showNames} onClick={(item) => {
+                <ItemCard key={i++} auth={auth} itemInfo={item} refresh={refresh} showViewButton={categorySource === "Favorites"} canEditOutfit={isOutfits} isWorn={item.itemType === "Asset" ? outfit.containsAsset(Number(item.id)) || wornItems.includes(Number(item.id)) : false} includeName={showNames} onClick={(item) => {
                     if (onClickFunc) {
                         onClickFunc(auth, item)
                     } else {
