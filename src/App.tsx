@@ -30,6 +30,7 @@ import { ROAVATAR_API } from './react/generic/roavatar-api'
 import BuyItemsButton from './react/buyItems'
 import { CONFIG } from './react/generic/config'
 import VersionPopup from './react/versionPopup'
+import WornItemCounters from './react/wornItemCounters'
 
 declare const browser: typeof chrome;
 
@@ -595,6 +596,8 @@ function App() {
                     setAddAssetOpen(true)
                   }}></ItemCard>
                 </div>
+
+                <WornItemCounters/>
 
                 {/*extra buttons*/}
                 <div className='main-left-top'>

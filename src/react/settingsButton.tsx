@@ -119,6 +119,7 @@ export default function SettingsButton(): React.JSX.Element {
             <SettingsToggle text={"Make RoAvatar default avatar editor"} storage="s-default" defaultValue={true}/>
             <SettingsToggle text={"Show last unsaved outfit when editor is opened"} storage="s-recovery-outfit" defaultValue={true}/>
             <SettingsToggle text={"Show changelog after update"} storage="s-show-changelog" defaultValue={true}/>
+            <SettingsToggle text={"Show worn item counters"} storage="s-show-accessory-counter" defaultValue={false}/>
             <div className="dialog-line"></div>
             <SettingsToggle text={"Show avatar history on profiles (API)"} storage="s-avatar-history" defaultValue={true}/>
             <SettingsToggle text={"Show avatars made with item in marketplace (API)"} storage="s-avatars-made-with" defaultValue={true}/>
