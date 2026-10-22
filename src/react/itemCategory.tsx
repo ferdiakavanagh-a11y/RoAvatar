@@ -74,7 +74,7 @@ async function getFavoriteLooks(userId: number, cursor: string, signal: AbortSig
             let isOffSale = false
 
             for (const item of look.items) {
-                itemRestrictions.push(...item.itemRestrictions)
+                if (item.itemRestrictions) itemRestrictions.push(...item.itemRestrictions)
                 if (!item.isPurchasable) {
                     isOffSale = true
                 }
