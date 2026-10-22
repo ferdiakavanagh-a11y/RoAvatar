@@ -299,6 +299,11 @@ body {
     }
 }
 
+.bar-button-icon-only {
+    padding: .4em .6em;
+    justify-content: center;
+}
+
 .bar-button:hover {
     background-color: var(--body-background);
 }

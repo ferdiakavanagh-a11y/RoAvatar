@@ -243,7 +243,7 @@ function App() {
     const realCategorySource = newCategorySource || categorySource
 
     _setCategoryType(categoryType)
-    if (realCategorySource === "Inventory") {
+    if (realCategorySource !== "Marketplace") {
       const firstSubCategory = Object.keys(CategoryDictionary[realCategorySource][categoryType])[0]
       setSubCategoryType(firstSubCategory)
     } else {
@@ -396,7 +396,7 @@ function App() {
     let marketplaceSubcategoryData: NavigationMenuItems["categories"][0]["subcategories"][0] | undefined = undefined
 
     //get appropriate categorydata and subcategorydata based on selection
-    if (navigationMenuItems) {
+    if (categorySource === "Marketplace" && navigationMenuItems) {
       for (const category of navigationMenuItems.categories) {
         if (category.name === categoryType) {
           marketplaceCategoryData = category
@@ -554,9 +554,11 @@ function App() {
                 {/*avatar preview*/}
                 <AvatarPreview setSaveAlwaysOn={setSaveAlwaysOn} setOutfit={setOutfit} animName={currentAnimName} setCurrentRig={setCurrentRig}>
                   <AvatarAdjustment/>
-                  {categorySource === "Marketplace" &&
+                  {(categorySource === "Marketplace" &&
                   nameToCategory.get(categoryType) === "AvatarAnimations" &&
-                  nameToCategory.get(subCategoryType || "") !== "EmoteAnimations" ? 
+                  nameToCategory.get(subCategoryType || "") !== "EmoteAnimations") ||
+                  (categorySource === "Favorites" && categoryType === "Avatars" &&
+                  (subCategoryType === "All" || subCategoryType === "Animation Packs")) ?
                   <AnimationPicker/> : null}
                 </AvatarPreview>
 
@@ -613,7 +615,7 @@ function App() {
 
               {/*RIGHT SIDE*/}
               <div className='main-right division-down'>
-                {/*category source (inventory/marketplace)*/}
+                {/*category source (inventory/marketplace/favorites)*/}
                 <div className="right-top">
                   <BarCategory className="" source={CategoryDictionary} currentCategory={categorySource} setCurrentCategory={setCategorySource}/>
                   <SearchFilter categorySource={categorySource} minPrice={minPrice} setMinPrice={setMinPrice} maxPrice={maxPrice} setMaxPrice={setMaxPrice} creator={creator} setCreator={setCreator} sortType={sortType} setSortType={setSortType} limitedOnly={limitedOnly} setLimitedOnly={setLimitedOnly} searchKeyword={searchKeyword} tempSearchKeyword={tempSearchKeyword} setSearchKeyword={setSearchKeyword} setTempSearchKeyword={setTempSearchKeyword} includeOffsale={includeOffsale} setIncludeOffsale={setIncludeOffsale}/>
@@ -627,7 +629,7 @@ function App() {
                 {/*appropriate category element for inventory*/
                 subCategoryType && !(CategoryDictionary[categorySource][categoryType][subCategoryType] instanceof SortDivision) ? <>
                   {CategoryDictionary[categorySource][categoryType][subCategoryType] instanceof SortInfo ?
-                  (<ItemCategory searchData={searchData} categoryType={categoryType} subCategoryType={subCategoryType} setOutfit={setOutfit} animName={currentAnimName} setAnimName={setCurrentAnimName}>
+                  (<ItemCategory key={`${categorySource}-${categoryType}-${subCategoryType}`} categorySource={categorySource} searchData={searchData} categoryType={categoryType} subCategoryType={subCategoryType} setOutfit={setOutfit} animName={currentAnimName} setAnimName={setCurrentAnimName}>
 
                   </ItemCategory>)
                   :
