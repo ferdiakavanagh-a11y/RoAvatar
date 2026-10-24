@@ -2,7 +2,7 @@ import { StrictMode } from 'react'
 import { createRoot } from 'react-dom/client'
 import './index.css'
 import App from './App.tsx'
-import { API, Authentication, exposeAPI, exposeFLAGS, exposeManagedTextures, exposeMesh, exposeTests, exposeThumbnailGenerator, FLAGS, OutfitModel, OutfitRenderer, RBXRenderer, Wait } from 'roavatar-renderer'
+import { API, Authentication, exposeAPI, exposeFLAGS, exposeManagedTextures, exposeMesh, exposeTests, exposeThumbnailGenerator, FLAGS, Instance, OutfitModel, OutfitRenderer, RBXRenderer, Wait } from 'roavatar-renderer'
 import { CONFIG } from './react/generic/config.ts'
 import ReviewReminder from './react/reviewReminder.tsx'
 import { initWebsite } from './website/init.ts'
@@ -128,7 +128,37 @@ if (window.location.protocol.includes("extension") || window.location.pathname.e
     exposeFLAGS()
     exposeThumbnailGenerator()
     exposeTests()
-    exposeManagedTextures()
+    exposeManagedTextures();
+
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    (globalThis as any).getInst = (name: string) => {
+      for (const inst of RBXRenderer.firstScene.renderDescs.keys()) {
+        if (inst.GetFullName() === name) return inst
+      }
+    }
+
+    const renderDescOf = (inst: Instance) => {
+      return RBXRenderer.firstScene.renderDescs.get(inst)
+    }
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    (globalThis as any).renderDescOf = renderDescOf
+
+    let treeStr = ""
+    const tree = (inst: Instance, depth: number = 0, plain: boolean = false) => {
+      if (depth === 0) treeStr = ""
+      const children = inst.GetChildren().sort((a, b) => {return (a.Prop("Name") as string).localeCompare(b.Prop("Name") as string)})
+
+      for (const child of children) {
+        if (plain) treeStr += "    ".repeat(depth) + child.Prop("Name") as string + "\n"
+        if (!plain) console.log("    ".repeat(depth) + child.Prop("Name") as string, {c: child, r: renderDescOf(child)})
+        tree(child, depth + 1, plain)
+      }
+
+      if (depth === 0) console.log(treeStr)
+    }
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    (globalThis as any).tree = tree
+
     //FLAGS.SHOW_CAGE = true
     //FLAGS.LOAD_TEST_PLACE = "../assets/UniversalApp.rbxm"
     //FLAGS.SEARCH_FOR_STRING = "generationid"
